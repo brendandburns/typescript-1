@@ -18,9 +18,6 @@ function clusterIterator(): u.ListIterator<any, Cluster> {
         if (!elt['name']) {
             throw new Error(`clusters${i}.name is missing`);
         }
-        if (!elt.cluster['certificate-authority-data'] && !elt.cluster['certificate-authority']) {
-            throw new Error(`clusters[${i}].cluster.[certificate-authority-data, certificate-authority] is missing`);
-        }
         if (!elt.cluster['server']) {
             throw new Error(`clusters[${i}].cluster.server is missing`);
         }
@@ -55,11 +52,24 @@ function userIterator(): u.ListIterator<any, User> {
         if (!elt.name) {
             throw new Error(`users[${i}].name is missing`);
         }
+        if (!elt.user || elt.user == null) {
+            return {
+                name: elt.name,
+                certData: null,
+                certFile: null,
+                keyData: null,
+                keyFile: null,
+                authProvider: null,
+                token: null,
+                username: null,
+                password: null
+            };
+        }
         let token = null;
         if (elt.user["token"]) {
             token = elt.user["token"];
         }
-        if (elt.user["token-file"]) {
+        if (elt.user && elt.user["token-file"]) {
             token = fs.readFileSync(elt.user["token-file"]);
         }
         return {
